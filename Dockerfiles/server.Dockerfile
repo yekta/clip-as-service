@@ -1,6 +1,4 @@
-ARG CUDA_VERSION=11.6.0
-
-FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu20.04
+FROM ubuntu:20.04
 
 ARG CAS_NAME=cas
 WORKDIR /${CAS_NAME}
@@ -8,7 +6,7 @@ WORKDIR /${CAS_NAME}
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# constant, wont invalidate cache
+# constant, won't invalidate cache
 LABEL org.opencontainers.image.vendor="Jina AI Limited" \
       org.opencontainers.image.licenses="Apache 2.0" \
       org.opencontainers.image.title="CLIP-as-Service" \
@@ -17,22 +15,19 @@ LABEL org.opencontainers.image.vendor="Jina AI Limited" \
       org.opencontainers.image.url="clip-as-service" \
       org.opencontainers.image.documentation="https://clip-as-service.jina.ai/"
 
-
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-pip wget \
     && ln -sf python3 /usr/bin/python \
     && ln -sf pip3 /usr/bin/pip \
     && pip install --upgrade pip \
-    && pip install wheel setuptools nvidia-pyindex \
-    && pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
+    && pip install wheel setuptools \
+    && pip install torch torchvision torchaudio
 
 COPY server ./server
 # given by builder
 ARG PIP_TAG
 RUN pip install --default-timeout=1000 --compile ./server/ \
     && if [ -n "${PIP_TAG}" ]; then pip install --default-timeout=1000 --compile "./server[${PIP_TAG}]" ; fi
-
-ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
