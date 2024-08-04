@@ -29,17 +29,17 @@ ARG PIP_TAG
 RUN pip install --default-timeout=1000 --compile ./server/ \
     && if [ -n "${PIP_TAG}" ]; then pip install --default-timeout=1000 --compile "./server[${PIP_TAG}]" ; fi
 
-ARG USER_ID=1001
-ARG GROUP_ID=1001
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 ARG USER_NAME=${CAS_NAME}
 ARG GROUP_NAME=${CAS_NAME}
 
-RUN groupadd -g ${GROUP_ID} ${GROUP_NAME} &&\
-    useradd -l -u ${USER_ID} -g ${GROUP_NAME} ${USER_NAME} &&\
-    mkdir /home/${USER_NAME} &&\
-    chown ${USER_NAME}:${GROUP_NAME} /home/${USER_NAME} &&\
+RUN groupadd -g ${GROUP_ID} ${GROUP_NAME} && \
+    useradd -l -u ${USER_ID} -g ${GROUP_NAME} ${USER_NAME} && \
+    mkdir /home/${USER_NAME} && \
+    chown ${USER_NAME}:${GROUP_NAME} /home/${USER_NAME} && \
     chown -R ${USER_NAME}:${GROUP_NAME} /${CAS_NAME}/
 
 USER ${USER_NAME}
 
-ENTRYPOINT ["python", "-m", "clip_server"
+ENTRYPOINT ["python", "-m", "clip_server"]
